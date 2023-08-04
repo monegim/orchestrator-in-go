@@ -2,6 +2,7 @@ package worker
 
 import (
 	"cube/task"
+	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -21,8 +22,33 @@ func (w *Worker) CollectStats() {
 	fmt.Println("I will collect stats")
 }
 
-func (w *Worker) RunTask() {
-	fmt.Println("I will start or stop a task")
+func (w *Worker) RunTask() task.DockerResult {
+	t := w.Queue.Dequeue()
+	if t == nil {
+		fmt.Println("No tasks in the queue")
+		return task.DockerResult{Error: nil}
+	}
+	taskQueued := t.(task.Task)
+	taskPersisted := w.Db[taskQueued.ID]
+	if taskPersisted == nil {
+		taskPersisted = &taskQueued
+		w.Db[taskQueued.ID] = &taskQueued
+	}
+	var result task.DockerResult
+	if task.ValidStateTransition(taskPersisted.State, taskQueued.State) {
+		switch taskQueued.State {
+		case task.Scheduled:
+			result = w.StartTask(taskQueued)
+		case task.Completed:
+			result = w.StopTask(taskQueued)
+		default:
+			result.Error = errors.New("We should not get here")
+		}
+	} else {
+		err := fmt.Errorf("Invalid transition from %v to %v", taskPersisted, taskQueued)
+		result.Error = err
+	}
+	return result
 }
 
 func (w *Worker) StartTask(t task.Task) task.DockerResult {
