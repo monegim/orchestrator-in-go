@@ -59,3 +59,7 @@ func (w *Worker) StopTask(t task.Task) task.DockerResult {
 	log.Printf("Stopped and removed container %v for task %v", t.ContainerID, t.ID)
 	return result
 }
+
+func (w *Worker) AddTask(t task.Task) {
+	w.Queue.Enqueue(t)
+}
