@@ -3,8 +3,10 @@ module cube
 go 1.20
 
 require (
+	github.com/c9s/goprocinfo v0.0.0-20210130143923-c95fcf8c64a8
 	github.com/docker/docker v24.0.4+incompatible
 	github.com/docker/go-connections v0.4.0
+	github.com/go-chi/chi/v5 v5.0.10
 	github.com/golang-collections/collections v0.0.0-20130729185459-604e922904d3
 	github.com/google/uuid v1.3.0
 )
@@ -13,7 +15,6 @@ require (
 	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/docker/distribution v2.8.2+incompatible // indirect
 	github.com/docker/go-units v0.5.0 // indirect
-	github.com/go-chi/chi/v5 v5.0.10 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/moby/term v0.5.0 // indirect
 	github.com/morikuni/aec v1.0.0 // indirect
