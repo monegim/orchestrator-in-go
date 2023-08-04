@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/pkg/stdcopy"
 	"io"
 	"log"
 	"os"
@@ -100,17 +101,16 @@ func (d *Docker) Run() DockerResult {
 		log.Printf("Error starting container %s: %v\n", resp.ID, err)
 		return DockerResult{Error: err}
 	}
-	// TODO:
-	//d.Config.Runtime.ContainerID = resp.ID
-	//out, err := cli.ContainerLogs(
-	//	ctx,
-	//	resp.ID,
-	//	types.ContainerLogsOptions{ShowStdout: true, ShowStderr: true}
-	//)
-	//if err != nil {
-	//	log.Printf("Error getting logs for container %s: %v\n", res
-	//	return DockerResult{Error: err}}
-	//stdcopy.StdCopy(os.Stdout, os.Stderr, out)
+	d.ContainerId = resp.ID
+	out, err := d.Client.ContainerLogs(
+		ctx,
+		resp.ID,
+		types.ContainerLogsOptions{ShowStdout: true, ShowStderr: true})
+	if err != nil {
+		log.Printf("Error getting logs for container %s: %v\n", resp.ID, err)
+		return DockerResult{Error: err}
+	}
+	stdcopy.StdCopy(os.Stdout, os.Stderr, out)
 	return DockerResult{
 		ContainerId: resp.ID,
 		Action:      "start",
