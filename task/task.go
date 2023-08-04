@@ -112,13 +112,16 @@ func (d *Docker) Run() DockerResult {
 	//	return DockerResult{Error: err}}
 	//stdcopy.StdCopy(os.Stdout, os.Stderr, out)
 	return DockerResult{
-		ContainerId: resp.ID, Action: "start", Result: "success",
+		ContainerId: resp.ID,
+		Action:      "start",
+		Result:      "success",
 	}
 }
 func (d *Docker) Stop(id string) DockerResult {
 	log.Printf("Attempting to stop container %v", id)
 	ctx := context.Background()
-	err := d.Client.ContainerStop(ctx, id, container.StopOptions{})
+	noWaitTimeout := 0
+	err := d.Client.ContainerStop(ctx, id, container.StopOptions{Timeout: &noWaitTimeout})
 	if err != nil {
 		fmt.Println(err)
 		panic(err)
