@@ -1,8 +1,11 @@
 package task
 
 import (
+	"context"
+	"github.com/docker/docker/api/types"
 	"time"
 
+	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
 	"github.com/google/uuid"
 )
@@ -36,4 +39,34 @@ type TaskEvent struct {
 	State     State
 	Timestamp time.Time
 	Task      Task
+}
+
+type Config struct {
+	Name          string
+	AttachStdin   bool
+	AttachStout   bool
+	AttachStderr  bool
+	Cmd           []string
+	Image         string
+	Memory        int64
+	Disk          int64
+	Env           []string
+	RestartPolicy string
+}
+
+type Docker struct {
+	Client      *client.Client
+	Config      Config
+	ContainerId string
+}
+type DockerResult struct {
+	Error       error
+	Action      string
+	ContainerId string
+	Result      string
+}
+
+func (d *Docker) Run() DockerResult {
+	ctx := context.Background()
+	reader, err := d.Client.ImagePull(ctx, d.Config.Image, types.ImagePullOptions{})
 }
