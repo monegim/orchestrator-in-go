@@ -35,7 +35,38 @@ func (m *Manager) SelectWorker() string {
 	return m.Workers[newWorker]
 }
 func (m *Manager) UpdateTasks() {
-	fmt.Println("I will update tasks")
+	for _, worker := range m.Workers {
+		log.Printf("Checking worker %v for task updates", worker)
+		url := fmt.Sprintf("http://%s/tasks", worker)
+		resp, err := http.Get(url)
+		if err != nil {
+			log.Printf("Error connecting to %v: %v", worker, err)
+		}
+		if resp.StatusCode != http.StatusOK {
+			log.Printf("Error sending request: %v", err)
+		}
+		d := json.NewDecoder(resp.Body)
+		var tasks []*task.Task
+		err = d.Decode(&tasks)
+		if err != nil {
+			log.Printf("Error unmarshalling tasks: %s", err.Error())
+		}
+		for _, t := range tasks {
+			log.Printf("Attempting to update task %v", t.ID)
+			_, ok := m.TaskDb[t.ID]
+			if !ok {
+				log.Printf("Task with ID %s not found\n", t.ID)
+				return
+			}
+			if m.TaskDb[t.ID].State != t.State {
+				m.TaskDb[t.ID].State = t.State
+			}
+
+			m.TaskDb[t.ID].StartTime = t.StartTime
+			m.TaskDb[t.ID].FinishTime = t.FinishTime
+			m.TaskDb[t.ID].ContainerID = t.ContainerID
+		}
+	}
 }
 func (m *Manager) SendWork() {
 	if m.Pending.Len() > 0 {
