@@ -31,5 +31,7 @@ func (a *Api) initRouter() {
 
 func (a *Api) Start() {
 	a.initRouter()
-	http.ListenAndServe(fmt.Sprintf("%s:%d", a.Address, a.Port), a.Router)
+	addressPort := fmt.Sprintf("%s:%d", a.Address, a.Port)
+	fmt.Println("Listening on: ", addressPort)
+	http.ListenAndServe(fmt.Sprintf(addressPort), a.Router)
 }
