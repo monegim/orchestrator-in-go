@@ -1,6 +1,10 @@
 package worker
 
-import "github.com/go-chi/chi/v5"
+import (
+	"fmt"
+	"github.com/go-chi/chi/v5"
+	"net/http"
+)
 
 type Api struct {
 	Address string
@@ -23,4 +27,9 @@ func (a *Api) initRouter() {
 			r.Delete("/", a.StopTaskHandler)
 		})
 	})
+}
+
+func (a *Api) Start() {
+	a.initRouter()
+	http.ListenAndServe(fmt.Sprintf("%s:%d", a.Address, a.Port), a.Router)
 }
