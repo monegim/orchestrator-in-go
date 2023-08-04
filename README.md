@@ -14,4 +14,3 @@ curl --unix-socket /var/run/docker.sock http://localhost/v1.43/containers/b169f7
 ```shell
 curl --unix-socket /var/run/docker.sock http://localhost/v1.43/containers/b169f7a8780b -XDELETE
 ```
-
