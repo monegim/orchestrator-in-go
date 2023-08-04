@@ -26,6 +26,7 @@ func main() {
 		Worker:  &w,
 	}
 	go runTasks(&w)
+	go w.CollectStats()
 	api.Start()
 }
 
