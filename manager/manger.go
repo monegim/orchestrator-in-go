@@ -121,3 +121,21 @@ func (m *Manager) SendWork() {
 func (m *Manager) AddTask(te task.TaskEvent) {
 	m.Pending.Enqueue(te)
 }
+
+func New(workers []string) *Manager {
+	taskDB := make(map[uuid.UUID]*task.Task)
+	eventDB := make(map[uuid.UUID]*task.TaskEvent)
+	workerTaskMap := make(map[string][]uuid.UUID)
+	taskWorkerMap := make(map[uuid.UUID]string)
+	for worker := range workers {
+		workerTaskMap[workers[worker]] = []uuid.UUID{}
+	}
+	return &Manager{
+		Pending:       queue.Queue{},
+		TaskDb:        taskDB,
+		EventDb:       eventDB,
+		Workers:       workers,
+		WorkerTaskMap: workerTaskMap,
+		TaskWorkerMap: taskWorkerMap,
+	}
+}
