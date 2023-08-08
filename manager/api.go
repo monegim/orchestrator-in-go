@@ -8,3 +8,8 @@ type Api struct {
 	Manager *Manager
 	Router  *chi.Mux
 }
+
+type ErrResponse struct {
+	HTTPStatusCode int
+	Message        string
+}
