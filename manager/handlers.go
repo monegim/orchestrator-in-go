@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	"log"
 	"net/http"
+	"time"
 )
 
 func (a *Api) StartTaskHandler(w http.ResponseWriter, r *http.Request) {
@@ -46,25 +47,24 @@ func (a *Api) StopTaskHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(400)
 	}
 	tID, _ := uuid.Parse(taskID)
-	_, ok := a.Worker.Db[tID]
+	_, ok := a.Manager.TaskDb[tID]
 	if !ok {
 		log.Printf("No task with ID %v found", tID)
 		w.WriteHeader(404)
 	}
-	taskToStop := a.Worker.Db[tID]
-	// we need to make a copy so we are not modifying the task in the datastore
+	te := task.TaskEvent{
+		ID:        uuid.New(),
+		State:     task.Completed,
+		Timestamp: time.Now(),
+	}
+	taskToStop := a.Manager.TaskDb[tID]
+	// we need to make a copy, so we are not modifying the task in the datastore
 	taskCopy := *taskToStop
 	taskCopy.State = task.Completed
-	a.Worker.AddTask(taskCopy)
+	te.Task = taskCopy
+	a.Manager.AddTask(te)
 
-	log.Printf("Added task %v to stop container %v\n", taskToStop.ID, taskToStop.ContainerID)
+	log.Printf("Added task event %v to stop task %v\n", te.ID, taskToStop)
 	w.WriteHeader(204)
-
-}
-
-func (a *Api) GetStatsHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(a.Worker.Stats)
 
 }
