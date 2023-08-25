@@ -32,6 +32,15 @@ func main() {
 
 		json.NewEncoder(w).Encode(m)
 	})
+	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
+		log.Println("Health check called")
+		w.Write([]byte("OK"))
+	})
+	r.Get("/healthfail", func(w http.ResponseWriter, r *http.Request) {
+		log.Println("Health check failed")
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Internal server error"))
+	})
 	srv := &http.Server{
 		Addr:    addr,
 		Handler: r,
