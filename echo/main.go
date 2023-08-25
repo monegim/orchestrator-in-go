@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"errors"
 	"log"
 	"net/http"
 	"os"
@@ -18,11 +20,24 @@ const addr = "0.0.0.0:7777"
 
 func main() {
 	r := chi.NewRouter()
+	r.Post("/", func(w http.ResponseWriter, r *http.Request) {
+		d := json.NewDecoder(r.Body)
+		m := Message{}
+		err := d.Decode(&m)
+		if err != nil {
+			json.NewEncoder(w).Encode(errors.New("unable to decode request body"))
+			return
+		}
+		log.Printf("Received message: %v\n", m.Msg)
+
+		json.NewEncoder(w).Encode(m)
+	})
 	srv := &http.Server{
 		Addr:    addr,
 		Handler: r,
 	}
 	go func() {
+		log.Printf("Listening on %q", addr)
 		if err := srv.ListenAndServe(); err != nil {
 			log.Println(err)
 		}
